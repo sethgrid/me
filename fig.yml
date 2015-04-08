@@ -1,6 +1,6 @@
 web:
   build: .
-  command: hugo server --theme=nofancy --buildDrafts --baseUrl=http://sethammons.com
+  command: hugo server --theme=nofancy --buildDrafts --baseUrl=http://sethammons.com --appendPort=false
   ports:
    - "1313:1313"
   # volumes:
