@@ -1,6 +1,6 @@
 web:
   build: .
-  command: hugo server --theme=nofancy --buildDrafts
+  command: hugo server --theme=nofancy --buildDrafts --baseUrl=http://104.131.9.167:1313
   ports:
    - "1313:1313"
   # volumes:
