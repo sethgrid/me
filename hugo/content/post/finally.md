@@ -32,3 +32,11 @@ After scp'ing my repo up to my Digital Ocean instance, I installed fig (Docker w
 ## Todo
 
 I want to get the container size down. It is sitting at about 350mb. I'll be looking into tips and tricks to see what I can do in that regard. Additionally, I'm creating the docker image locally on the Digital Instance. I'd like to generate it on my laptop and scp it up. We will see.
+
+### Update
+
+I had to modify the command to start hugo. After setting up DNS, I changed my baseURL to my domain, and appended a flag to ignore the port.
+
+```
+  command: hugo server --theme=nofancy --buildDrafts --baseUrl=http://sethammons.com --appendPort=false
+```
