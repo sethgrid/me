@@ -28,3 +28,32 @@ We've gone over ways to increase our system resiliency with retries and backoff,
 ### Pester
 
 Go's standard library is super solid. Building atop of it, I put together a simple library that has built-in retries, backoff, and concurrency. With Pester, I made sure that anyone who wanted to use it would not have to change any of their logic in their apps that deal with http client calls. Simply replace your http client calls with the pester version and you're set. Pester provides an http client that matches the standlib and supports `.Get`, `.Post`,`.PostForm`,`.Head`, and `.Do`. Each of which that can make automatic use of retries and backoff, and idempotent calls (aka GET) can make use of making concurrent requests. I hope your project can benefit from it!
+
+```
+{ // drop in replacement for http.Get and other client methods
+    resp, err := pester.Get(SomeURL)
+    if err != nil {
+        log.Fatalf("error GETing default", err)
+    }
+    defer resp.Body.Close()
+
+    log.Printf("GET: %s", resp.Status)
+}
+
+
+{ // control the resiliency
+    client := pester.New()
+    client.Concurrency = 3
+    client.MaxRetries = 5
+    client.Backoff = pester.ExponentialJitterBackoff
+    client.KeepLog = true
+
+    resp, err := client.Get(SomeURL)
+    if err != nil {
+        log.Fatalf("error GETing with all options, %s", client.LogString())
+    }
+    defer resp.Body.Close()
+
+    log.Printf("Full Example: %s [request %d, retry %d]", resp.Status, client.SuccessReqNum, client.SuccessRetryNum)
+}
+```
