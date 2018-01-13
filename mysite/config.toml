@@ -1,0 +1,26 @@
+name = "Ananke Gohugo Theme"
+license = "MIT"
+licenselink = "https://github.com/budparr/gohugo-theme-ananke/blob/master/LICENSE.md"
+description = "A Base theme for building full featured Hugo sites"
+homepage = "https://github.com/budparr/gohugo-theme-ananke"
+tags = ["website", "starter", "responsive"]
+features = ["posts", "shortcodes"]
+theme = "nofancy"
+baseURL = "sethammons.com"
+title = "SethAmmons.com"
+copyright = "(c) 2014-2018"
+
+[params]
+  highlight = true
+
+[taxomomies]
+  tag = "tags"
+  category = "categories"
+
+[author]
+    name = "Seth Ammons"
+    github = "sethgrid"
+    linkedin = "sethammons"
+    #facebook = "YOUR FB ID"
+    #gaID = "YOUR Google Analytics Tracking ID"
+    twitter = "seth_ammons"
