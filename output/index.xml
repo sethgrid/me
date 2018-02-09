@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Seth Ammons</title>
+    <link>sethammons.com/</link>
+    <description>Recent content on Seth Ammons</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>Copyright (c) 2001 - 2014, Seth Ammons; all rights reserved.</copyright>
+    <lastBuildDate>Sun, 01 Mar 2015 10:50:48 -0800</lastBuildDate>
+    
+	<atom:link href="sethammons.com/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Hugo Syntax Highlighting</title>
+      <link>sethammons.com/post/hugo_syntax_highlighting/</link>
+      <pubDate>Sun, 01 Mar 2015 10:50:48 -0800</pubDate>
+      
+      <guid>sethammons.com/post/hugo_syntax_highlighting/</guid>
+      <description>So, a few minutes ago, I was all excited on how easy Hugo was to get started. While I really like what I am seeing in a lot of ways, what I do not like is the documentation for syntax highlighting.
+From the configuration page:
+# color-codes for highlighting derived from this style pygmentsStyle: &amp;quot;monokai&amp;quot; # true: use pygments-css or false: color-codes directly pygmentsUseClasses: false  Using this, coupled with the syntax highlighting page, I cannot get sytanx highlighting to work the way you would think it should.</description>
+    </item>
+    
+    <item>
+      <title>Moving to Hugo</title>
+      <link>sethammons.com/post/first/</link>
+      <pubDate>Sun, 01 Mar 2015 08:27:46 -0800</pubDate>
+      
+      <guid>sethammons.com/post/first/</guid>
+      <description>Now on Hugo I&amp;rsquo;ve been looking lately to move off my shared hosting (I know, right?) and I have been seeking an excuse to move all my stuff over to Digital Ocean. I&amp;rsquo;ve finally gotten off the pot, and decided that I would expore Docker using Digital Ocean as the backing hardware.
+Previously, I had a homegrown site. As I don&amp;rsquo;t spend my freetime making hot designs anymore, that site quickly fell out of anything resembling something polished.</description>
+    </item>
+    
+  </channel>
+</rss>

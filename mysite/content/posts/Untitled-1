@@ -1,0 +1,66 @@
+
+
+
+Proxysql API
+
+Discoverability / Consul Integration
+
+Config via HTTP API
+
+Go Gotcha's
+
+
+
+
+
+
+### Abstract
+SendGrid sends 10,000s of emails per second requiring very high database transaction rates. After years using an in-house abstraction layer, we needed a solution to help us manage the sprawl of our database layer more efficiently. ProxySQL was a candidate that could handle thousands of transactions, tens of thousands of queries per second, all while helping us reduce our database footprint.
+But nothing is easy out of the box. We created tools to integrate ProxySQL with our production systems.
+In this talk you will hear about how we:
+* Leveraged Chef to manage initial configuration
+* Created an HTTP API to manage and configure ProxySQL at runtime
+* Used Consul to dynamically discover hostgroup members
+* Provided hooks to gain insight and metrics on performance
+Attendees of this talk will learn how we moved a business critical part of our infrastructure to ProxySQL, learn about our process for taking an idea from inception to production, and some horror stories along the way.
+
+
+
+
+
+
+
+
+
+
+
+
+### outline
+What is ProxySQL and Why Did SendGrid Decide to use it
+ - ProxySQL Elevator Pitch
+ - Protect the database. Avoid our current DB Abstraction (apid)
+
+Some problems:
+ - We use chef. How do we handle node membership changes?
+ - How do we know it has the settings we want?
+ - How to we know it is working? How do we monitor logs and metrics
+
+Solution! ProxySQL API (we are bad at naming things, case "smtpapi")
+
+What is ProxySQL API
+ - HTTP API that allows us to do some easy things like query stats, hostgroups, etc
+ - Tails ProxySQL logs and converts the output to structured JSON logs that SendGrid tooling understands
+ - Reads out interesting metrics and pushes them to Graphite.
+ - Handles node membership via Discoverability via Consul
+
+
+More on Discoverability
+ - Consul! We have consul agent running on all MySQL Nodes and everything is configured to be DC aware
+ - When ProxySQL API starts, it uses WATCH and gets the initial server list and populates that into ProxySQL's admin interface
+ - WATCH continues to run, looking for changes in membership, and hot-loading those into ProxySQL
+ - How we handle restarts of ProxySQL and have ProxySQL API know to "re-initialize server list"
+
+Lastly, some Go Gatcha's
+ - Auto-Prepared statements - you will get queries that don't match your rules
+ - Max Allowed Packets and query rules
+ - Did the issue of packets.go go away? (due to single server issues we think, we would get packets.go error logs against the network that do not result in any disruption in the service)
