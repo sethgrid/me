@@ -2,21 +2,21 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
  <channel>
    <title>Categories on Seth Ammons</title>
-   <link>http://sethammons.com/categories/</link>
+   <link>https://sethammons.com/categories/</link>
    <description>Recent content in Categories on Seth Ammons</description>
    <generator>Hugo -- gohugo.io</generator>
    <language>en-us</language>
    <copyright>Copyright (c) 2001 - 2020, Seth Ammons; all rights reserved.</copyright>
    
-       <atom:link href="http://sethammons.com/categories/index.xml" rel="self" type="application/rss+xml" />
+       <atom:link href="https://sethammons.com/categories/index.xml" rel="self" type="application/rss+xml" />
    
    
      <item>
        <title>Pester: Go (Golang) HTTP retries, backoff, and concurrency</title>
-       <link>http://sethammons.com/posts/pester/</link>
+       <link>https://sethammons.com/posts/pester/</link>
        <pubDate>Mon, 25 May 2015 10:10:55 -0700</pubDate>
        
-       <guid>http://sethammons.com/posts/pester/</guid>
+       <guid>https://sethammons.com/posts/pester/</guid>
        <description>&lt;h3 id=&#34;resiliency-in-http-requests&#34;&gt;Resiliency in HTTP requests&lt;/h3&gt;
 &lt;p&gt;Having worked for a few years on high scale and high availability systems, I&#39;ve learned there are a few tricks that you can employ to make sure your requests make it back from over the network. There are two basic approaches in this arena: fail and recover fast (ala &lt;a href=&#34;https://github.com/Netflix/Hystrix&#34;&gt;Hystrix&lt;/a&gt;) and the bit older method of handling retires, backoff, and making concurrent requests. Hystrix seems pretty dang awesome, but may be a little heavy handed. I would like to introduce a small library wrapper I put together to handle the other side of the coin for retries, backoff, and concurrency: &lt;a href=&#34;https://github.com/sethgrid/pester&#34;&gt;Pester&lt;/a&gt;.&lt;/p&gt;
 &lt;h3 id=&#34;retries&#34;&gt;Retries&lt;/h3&gt;
@@ -60,10 +60,10 @@
    
      <item>
        <title>Finally, now we can get started</title>
-       <link>http://sethammons.com/posts/finally/</link>
+       <link>https://sethammons.com/posts/finally/</link>
        <pubDate>Tue, 07 Apr 2015 18:02:55 -0700</pubDate>
        
-       <guid>http://sethammons.com/posts/finally/</guid>
+       <guid>https://sethammons.com/posts/finally/</guid>
        <description>&lt;h3 id=&#34;posting-new-content-under-docker&#34;&gt;Posting new content under Docker&lt;/h3&gt;
 &lt;p&gt;Time is so hard to find. Getting pulled three ways from Sunday at work has left me outside of a solid work-life balance. As such, it I have not had the opportunity to get back to playing with this setup.&lt;/p&gt;
 &lt;p&gt;Well, the time has come. I finally got everything figured out between Digital Ocean, Hugo, and Docker.&lt;/p&gt;
@@ -85,10 +85,10 @@
    
      <item>
        <title>Hugo Syntax Highlighting</title>
-       <link>http://sethammons.com/posts/hugo_syntax_highlighting/</link>
+       <link>https://sethammons.com/posts/hugo_syntax_highlighting/</link>
        <pubDate>Sun, 01 Mar 2015 10:50:48 -0800</pubDate>
        
-       <guid>http://sethammons.com/posts/hugo_syntax_highlighting/</guid>
+       <guid>https://sethammons.com/posts/hugo_syntax_highlighting/</guid>
        <description>&lt;p&gt;So, a few minutes ago, I was all excited on how easy Hugo was to get started. While I really like what I am seeing in a lot of ways, what I do not like is the documentation for syntax highlighting.&lt;/p&gt;
 &lt;p&gt;From the &lt;a href=&#34;http://gohugo.io/overview/configuration/&#34;&gt;configuration page&lt;/a&gt;:&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;# color-codes for highlighting derived from this style
@@ -112,10 +112,10 @@ pygmentsUseClasses:         false
    
      <item>
        <title>Moving to Hugo</title>
-       <link>http://sethammons.com/posts/first/</link>
+       <link>https://sethammons.com/posts/first/</link>
        <pubDate>Sun, 01 Mar 2015 08:27:46 -0800</pubDate>
        
-       <guid>http://sethammons.com/posts/first/</guid>
+       <guid>https://sethammons.com/posts/first/</guid>
        <description>&lt;h3 id=&#34;now-on-hugo&#34;&gt;Now on Hugo&lt;/h3&gt;
 &lt;p&gt;I&#39;ve been looking lately to move off my shared hosting (I know, right?) and I have been seeking an excuse to move all my stuff over to Digital Ocean. I&#39;ve finally gotten off the pot, and decided that I would expore Docker using Digital Ocean as the backing hardware.&lt;/p&gt;
 &lt;p&gt;Previously, I had a homegrown site. As I don&#39;t spend my freetime making hot designs anymore, that site quickly fell out of anything resembling something polished. I switched over to the first blog-like management utility I could quickly set up on the shared hosting. It could not handle code snippets and that limited my drive to keep posting. Being so busy, I just let it slide.&lt;/p&gt;
@@ -133,10 +133,10 @@ pygmentsUseClasses:         false
    
      <item>
        <title>Switch to Mac from Ubuntu</title>
-       <link>http://sethammons.com/posts/the_switch_to_mac/</link>
+       <link>https://sethammons.com/posts/the_switch_to_mac/</link>
        <pubDate>Tue, 24 Sep 2013 18:02:55 -0700</pubDate>
        
-       <guid>http://sethammons.com/posts/the_switch_to_mac/</guid>
+       <guid>https://sethammons.com/posts/the_switch_to_mac/</guid>
        <description>&lt;p&gt;At work, we are trying to push towards a homogenous grouping of developer environments (beyond the common VMs) and all developers are encouraged to go the Mac route on the dev’s next upgrade. My System76’s screen cracked (Nooooooooo!) and I started working on the slick XPS13 Developer Ed. The poor little machine could not keep up with a simple VM. So, Mac it was.&lt;/p&gt;
 &lt;p&gt;My first impressions are that (in no particular order):&lt;/p&gt;
 &lt;ul&gt;
@@ -157,10 +157,10 @@ pygmentsUseClasses:         false
    
      <item>
        <title>Settings Backup, Part 2</title>
-       <link>http://sethammons.com/posts/backup_settings_part_2/</link>
+       <link>https://sethammons.com/posts/backup_settings_part_2/</link>
        <pubDate>Thu, 15 Aug 2013 18:02:55 -0700</pubDate>
        
-       <guid>http://sethammons.com/posts/backup_settings_part_2/</guid>
+       <guid>https://sethammons.com/posts/backup_settings_part_2/</guid>
        <description>&lt;h3 id=&#34;settings-backup-part-2&#34;&gt;Settings Backup, Part 2&lt;/h3&gt;
 &lt;p&gt;Somehow my laptop screen got a crack in it. Totally suxorz. I have… er… had a System76 Serval Professional. Awesome machine. While that rig is being sent out for repairs, I’ve installed Ubuntu on a spare laptop and pulled in my Github repo with my settings backup. Presto, chango — my terminal in all its bashy goodness is back to the exact way I like it. Couple that with a Dropbox full of standard background images set up with Wallch and it is like I never changed computers.&lt;/p&gt;
 </description>
@@ -168,20 +168,20 @@ pygmentsUseClasses:         false
    
      <item>
        <title>Bloody Perl</title>
-       <link>http://sethammons.com/posts/bloody_perl/</link>
+       <link>https://sethammons.com/posts/bloody_perl/</link>
        <pubDate>Thu, 11 Jul 2013 18:02:55 -0700</pubDate>
        
-       <guid>http://sethammons.com/posts/bloody_perl/</guid>
+       <guid>https://sethammons.com/posts/bloody_perl/</guid>
        <description>&lt;p&gt;Working through some Perl code today (shudder). I came across the slash slash equals operator, two forwards slashes and an equals sign &lt;code&gt;//=&lt;/code&gt;. No, it is not a comment. It is very similar to pipe pipe equals &lt;code&gt;||=&lt;/code&gt;, but is restricted to undef values. Google needs to work on a way to better search for programming operators.&lt;/p&gt;
 </description>
      </item>
    
      <item>
        <title>Settings Backup</title>
-       <link>http://sethammons.com/posts/backup_settings/</link>
+       <link>https://sethammons.com/posts/backup_settings/</link>
        <pubDate>Sun, 28 Apr 2013 18:02:55 -0700</pubDate>
        
-       <guid>http://sethammons.com/posts/backup_settings/</guid>
+       <guid>https://sethammons.com/posts/backup_settings/</guid>
        <description>&lt;h3 id=&#34;settings-backup-and-restoration-with-github&#34;&gt;Settings Backup and Restoration with GitHub&lt;/h3&gt;
 &lt;p&gt;A new Ubuntu version is coming out and the last thing I want to do is manually copy over my myriad of different config and settings files. I have my PS1 function set the way I like it, my Terminator terminal all set up with my keybindings and colors, some handy aliases, and some other rc_goodies. Thanks to the awesome power of GitHub, I fret of this aspect of upgrading no longer. I set up a repo that has a script that pulls in all my latest and greatest changes and can push those changes back out to my system.&lt;/p&gt;
 &lt;h3 id=&#34;the-backuprestore-process&#34;&gt;The Backup/Restore Process&lt;/h3&gt;
