@@ -1,0 +1,171 @@
+<!doctype html>
+
+<html lang="en-us">
+
+<head>
+  <title>Seth Ammons</title>
+  <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="description" content="The HTML5 Herald" />
+<meta name="author" content="Seth Ammons" /><meta property="og:title" content="Pester: Go (Golang) HTTP retries, backoff, and concurrency" />
+<meta property="og:description" content="Resiliency in HTTP requests Having worked for a few years on high scale and high availability systems, I&#39;ve learned there are a few tricks that you can employ to make sure your requests make it back from over the network. There are two basic approaches in this arena: fail and recover fast (ala Hystrix) and the bit older method of handling retires, backoff, and making concurrent requests. Hystrix seems pretty dang awesome, but may be a little heavy handed." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://sethammons.com/posts/pester/" />
+<meta property="article:published_time" content="2015-05-25T10:10:55-07:00" />
+<meta property="article:modified_time" content="2015-05-25T10:10:55-07:00" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Pester: Go (Golang) HTTP retries, backoff, and concurrency"/>
+<meta name="twitter:description" content="Resiliency in HTTP requests Having worked for a few years on high scale and high availability systems, I&#39;ve learned there are a few tricks that you can employ to make sure your requests make it back from over the network. There are two basic approaches in this arena: fail and recover fast (ala Hystrix) and the bit older method of handling retires, backoff, and making concurrent requests. Hystrix seems pretty dang awesome, but may be a little heavy handed."/>
+
+<meta name="generator" content="Hugo 0.61.0" />
+    
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css" />
+  <link rel="stylesheet" href="http://sethammons.com/fontawesome/css/all.min.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Slab|Ruda" />
+  <link rel="stylesheet" type="text/css" href="/css/styles.css" /></head>
+
+<body>
+  <div id="container">
+    <header>
+      <h1>
+                <a href="/">Seth Ammons</a>
+            </h1>
+
+      <ul id="social-media">
+             <li>
+               <a href="https://github.com/sethgrid" title="GitHub">
+               <i class="fab fa-github fa-lg"></i>
+               </a>
+             </li>
+             <li>
+               <a href="https://twitter.com/seth_ammons" title="Twitter">
+               <i class="fab fa-twitter fa-lg"></i>
+               </a>
+             </li>
+             <li>
+               <a href="https://linkedin.com/in/sethammons" title="LinkedIn">
+               <i class="fab fa-linkedin fa-lg"></i>
+               </a>
+             </li>
+      </ul>
+      
+    </header>
+
+    
+<nav>
+    <ul>
+        
+        <li>
+            <a class="" href="/posts/">
+                <i class="fa-li fa  fa-lg"></i><span>Posts</span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="" href="/about/">
+                <i class="fa-li fa  fa-lg"></i><span>About</span>
+            </a>
+        </li>
+        
+    </ul>
+</nav>
+
+    <main>
+
+
+
+
+<article>
+
+    <h1>Pester: Go (Golang) HTTP retries, backoff, and concurrency</h1>
+
+    
+        <aside>
+    <ul>
+        <li>
+            <time class="post-date" datetime="2015-05-25T10:10:55-07:00">May 25, 2015</time>
+        </li>
+        
+
+        
+
+        <li>4 minutes read</li>
+    </ul>
+</aside>
+
+    
+
+    <h3 id="resiliency-in-http-requests">Resiliency in HTTP requests</h3>
+<p>Having worked for a few years on high scale and high availability systems, I've learned there are a few tricks that you can employ to make sure your requests make it back from over the network. There are two basic approaches in this arena: fail and recover fast (ala <a href="https://github.com/Netflix/Hystrix">Hystrix</a>) and the bit older method of handling retires, backoff, and making concurrent requests. Hystrix seems pretty dang awesome, but may be a little heavy handed. I would like to introduce a small library wrapper I put together to handle the other side of the coin for retries, backoff, and concurrency: <a href="https://github.com/sethgrid/pester">Pester</a>.</p>
+<h3 id="retries">Retries</h3>
+<p>Some requests go out and hit a transitory error. Here is a recent example I've run into. We built an authorization system that creates a few hundred permission entries in our datastore when a user is created, adding to the millions of other records. Other services in our system can hit our authorization system on behalf of the new user nearly immediately, but due to replication lag, we may not have the data available just yet. More concretely, we could have a situation where <code>authorizationURL/{:user_id}</code> does not exist one moment and 404's, but the next moment will 200 and return data.</p>
+<p>How can we deal with this? One option is to allow the service to just have an error and give a crap user experience. I'm not a fan of this approach. I'd wager we want to retry. Now we wrap our calls to the authorization service with special 404 handling to wait some amount of time and then try again. What if we've suffered a network partition? What if we could have multiple seconds (or worse, minutes) of down time for a given service, and we find we want to keep trying the downed endpoint? We can keep retrying but add some backoff to each request.</p>
+<h3 id="backoff">Backoff</h3>
+<p>To help prevent us from knocking down the downstream service with requests (maybe it is responding so slowly due to increased load) we can introduce a backoff strategy. The strategy you use depends on your use case. It may make sense to wait one second between retries, or it may make sense to increase the backoffs from 1 second to 10 to several minutes or longer. Some of the systems I work on have retries that can happen hours later.</p>
+<p>If we find ourselves making metric craptonnes of calls, we don't want to find all of our backoffs in sync. If our errors are due to load, we want to make sure our backoffs are staggered to avoid kicking the error can down the street. One solution to this problem is to add jitter to your backoffs by adding or subtracting some random amount of time to each request's scheduled backoff. This can work to ensure that we don't have a traveling herd of requests and errors.</p>
+<h3 id="concurrency">Concurrency</h3>
+<p>We've gone over ways to increase our system resiliency with retries and backoff, but what about getting our data back more quickly? If we are hitting our load balancer and it is routing calls for us, we may have calls that find their way to less busy servers. If we send out three requests, and they would come back at 200ms, 18ms, and 60ms. By making these three requests concurrently, we can get back our fastest 18ms response and continue about our day.</p>
+<h3 id="pester">Pester</h3>
+<p>Go's standard library is super solid. Building atop of it, I put together a simple library that has built-in retries, backoff, and concurrency. With Pester, I made sure that anyone who wanted to use it would not have to change any of their logic in their apps that deal with http client calls. Simply replace your http client calls with the pester version and you're set. Pester provides an http client that matches the standlib and supports <code>.Get</code>, <code>.Post</code>,<code>.PostForm</code>,<code>.Head</code>, and <code>.Do</code>. Each of which that can make automatic use of retries and backoff, and idempotent calls (aka GET) can make use of making concurrent requests. I hope your project can benefit from it!</p>
+<pre><code>{ // drop in replacement for http.Get and other client methods
+    resp, err := pester.Get(SomeURL)
+    if err != nil {
+        log.Fatalf(&quot;error GETing default&quot;, err)
+    }
+    defer resp.Body.Close()
+
+    log.Printf(&quot;GET: %s&quot;, resp.Status)
+}
+
+
+{ // control the resiliency
+    client := pester.New()
+    client.Concurrency = 3
+    client.MaxRetries = 5
+    client.Backoff = pester.ExponentialJitterBackoff
+    client.KeepLog = true
+
+    resp, err := client.Get(SomeURL)
+    if err != nil {
+        log.Fatalf(&quot;error GETing with all options, %s&quot;, client.LogString())
+    }
+    defer resp.Body.Close()
+
+    log.Printf(&quot;Full Example: %s [request %d, retry %d]&quot;, resp.Status, client.SuccessReqNum, client.SuccessRetryNum)
+}
+</code></pre>
+
+</article>
+
+
+<section class="post-nav">
+    <ul>
+        
+        <li>
+            <a href="http://sethammons.com/posts/finally/"><i class="fa fa-chevron-circle-left"></i> Finally, now we can get started</a>
+        </li>
+        
+        
+    </ul>
+</section>
+    
+
+
+
+
+
+</main>
+    <footer>
+        <h6>Copyright (c) 2001 - 2020, Seth Ammons; all rights reserved. |
+            Rendered by <a href="https://gohugo.io" title="Hugo">Hugo</a> 
+        </h6>
+    </footer>
+</div>
+<script src="/js/scripts.js"></script>
+
+</body>
+
+</html>
+

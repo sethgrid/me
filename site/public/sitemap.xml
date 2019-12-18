@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  
+  <url>
+    <loc>http://sethammons.com/posts/</loc>
+    <lastmod>2015-05-25T10:10:55-07:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://sethammons.com/about/</loc>
+    <lastmod>2015-03-01T08:26:28-08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://sethammons.com/posts/pester/</loc>
+    <lastmod>2015-05-25T10:10:55-07:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://sethammons.com/</loc>
+    <lastmod>2015-05-25T10:10:55-07:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://sethammons.com/posts/finally/</loc>
+    <lastmod>2015-04-07T18:02:55-07:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://sethammons.com/posts/hugo_syntax_highlighting/</loc>
+    <lastmod>2015-03-01T10:50:48-08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://sethammons.com/posts/first/</loc>
+    <lastmod>2015-03-01T08:27:46-08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://sethammons.com/posts/the_switch_to_mac/</loc>
+    <lastmod>2013-09-24T18:02:55-07:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://sethammons.com/posts/backup_settings_part_2/</loc>
+    <lastmod>2013-08-15T18:02:55-07:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://sethammons.com/posts/bloody_perl/</loc>
+    <lastmod>2013-07-11T18:02:55-07:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://sethammons.com/posts/backup_settings/</loc>
+    <lastmod>2013-04-28T18:02:55-07:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://sethammons.com/categories/</loc>
+  </url>
+  
+  <url>
+    <loc>http://sethammons.com/tags/</loc>
+  </url>
+  
+</urlset>

@@ -1,0 +1,33 @@
+baseURL = "http://sethammons.com/"
+languageCode = "en-us"
+title = "Seth Ammons"
+copyright = "Copyright (c) 2001 - 2020, Seth Ammons; all rights reserved."
+#theme = "contrast-hugo"
+theme = "hugo-kiera"
+appendPort = false
+
+# hugo-kiera theme
+pygmentCodeFences = true
+disqusShortname = ""
+googleAnalytics = ""
+
+# controls how many posts on the Posts page (or tag page if I get to that point)
+#paginate = 3
+
+# uncomment to enable the Tags link on the main toolbar
+#  [[menu.main]]
+#    identifier = "tags"
+#    name = "Tags"
+#    url = "tags"
+#    weight = 1
+
+[params]
+    tagling = "mountain dwelling software developer"
+
+[author]
+    name = "Seth Ammons"
+    github = "sethgrid"
+    linkedin = "sethammons"
+    #facebook = "YOUR FB ID"
+    #gaID = "YOUR Google Analytics Tracking ID"
+    twitter = "seth_ammons"
