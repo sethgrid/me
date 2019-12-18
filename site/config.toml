@@ -22,7 +22,7 @@ googleAnalytics = ""
 #    weight = 1
 
 [params]
-    tagling = "mountain dwelling software developer"
+    tagline = "mountain dwelling software developer"
 
 [author]
     name = "Seth Ammons"
