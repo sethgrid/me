@@ -1,0 +1,268 @@
+<!doctype html>
+
+<html lang="en-us">
+
+<head>
+  <title>Seth Ammons</title>
+  <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="description" content="The HTML5 Herald" />
+<meta name="author" content="Seth Ammons" /><meta property="og:title" content="Bitwarden with Caddy 2 on Digital Ocean" />
+<meta property="og:description" content="The Preamble Ramble I finally had to bite the bullet and go away from the antiquated way I was leveraging password management. I was maintaining a keepass database synced via Dropbox. This let me keep my phone, my work laptop, my desktop, and my wife&#39;s computer all in sync. However, when my wife re-installed her OS last week, Dropbox informed me that my license is only good for three computers. Well, time to finally make the move to Bitwarden." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://sethammons.com/posts/bitwarden_with_caddy/" />
+<meta property="article:published_time" content="2019-12-22T18:02:55-07:00" />
+<meta property="article:modified_time" content="2019-12-22T18:02:55-07:00" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Bitwarden with Caddy 2 on Digital Ocean"/>
+<meta name="twitter:description" content="The Preamble Ramble I finally had to bite the bullet and go away from the antiquated way I was leveraging password management. I was maintaining a keepass database synced via Dropbox. This let me keep my phone, my work laptop, my desktop, and my wife&#39;s computer all in sync. However, when my wife re-installed her OS last week, Dropbox informed me that my license is only good for three computers. Well, time to finally make the move to Bitwarden."/>
+
+<meta name="generator" content="Hugo 0.61.0" />
+    
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css" />
+  <link rel="stylesheet" href="https://sethammons.com/fontawesome/css/all.min.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Slab|Ruda" />
+  <link rel="stylesheet" type="text/css" href="/css/styles.css" /></head>
+
+<body>
+  <div id="container">
+    <header>
+      <h1>
+                <a href="/">Seth Ammons</a>
+            </h1>
+
+      <ul id="social-media">
+             <li>
+               <a href="https://github.com/sethgrid" title="GitHub">
+               <i class="fab fa-github fa-lg"></i>
+               </a>
+             </li>
+             <li>
+               <a href="https://twitter.com/seth_ammons" title="Twitter">
+               <i class="fab fa-twitter fa-lg"></i>
+               </a>
+             </li>
+             <li>
+               <a href="https://linkedin.com/in/sethammons" title="LinkedIn">
+               <i class="fab fa-linkedin fa-lg"></i>
+               </a>
+             </li>
+      </ul>
+      
+      <p><em>mountain dwelling software developer</em></p>
+      
+    </header>
+
+    
+<nav>
+    <ul>
+        
+        <li>
+            <a class="" href="/posts/">
+                <i class="fa-li fa  fa-lg"></i><span>Posts</span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="" href="/about/">
+                <i class="fa-li fa  fa-lg"></i><span>About</span>
+            </a>
+        </li>
+        
+    </ul>
+</nav>
+
+    <main>
+
+
+
+
+<article>
+
+    <h1>Bitwarden with Caddy 2 on Digital Ocean</h1>
+
+    
+        <aside>
+    <ul>
+        <li>
+            <time class="post-date" datetime="2019-12-22T18:02:55-07:00">Dec 22, 2019</time>
+        </li>
+        
+
+        
+
+        <li>5 minutes read</li>
+    </ul>
+</aside>
+
+    
+
+    <h3 id="the-preamble-ramble">The Preamble Ramble</h3>
+<p>I finally had to bite the bullet and go away from the antiquated way I was leveraging password management. I was maintaining a keepass database synced via Dropbox. This let me keep my phone, my work laptop, my desktop, and my wife's computer all in sync. However, when my wife re-installed her OS last week, Dropbox informed me that my license is only good for three computers. Well, time to finally make the move to Bitwarden.</p>
+<p>I've heard good things about Bitwarden and I especially like the idea of self-hosting my password management solution. Having easy browser integration and mobile clients made looking into getting it running on my Digital Ocean box a no-brainer.</p>
+<p>Unfortunately, as I was getting ready to sign into my Digital Ocean box, I realized something was wrong. I couldn't ssh, I couldn't open a web console. Nothing. Digital Oceans support is lack luster for emergencies like &ldquo;I can't reach my node and it is DO's fault.&rdquo; Their self-service mentality assumes everything that can go wrong is the user's fault. Fast forward a bit, and I had to re-create my instance and start from scratch. Since I was starting from scratch, I decided I would give Caddy server a try too. And since Caddy 2 is in beta, I might as well use that!</p>
+<h2 id="caddy-configuration">Caddy Configuration</h2>
+<p>Caddy 2 is functional, but still very beta. Docs are getting written and, for someone who is not familiar with it, there is a bit of a learning curve. While there is apparently some magic simple config format, the &ldquo;real&rdquo; config format is JSON, and if you want to have full control of your Caddy 2 instance, you are going to be writing some JSON.</p>
+<p>Previously, I thought YAML was a pain in the butt. Man. Hand crafting JSON is terrible. That said, here is a Caddy configuration that allowed me to have logging, to run my normal site as a static file server, also run my son's site as a reverse proxy to a Go binary running on my server, and a reverse proxy to my Bitwarden install:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
+    <span style="color:#f92672">&#34;logging&#34;</span>: {
+        <span style="color:#f92672">&#34;sink&#34;</span>: {
+            <span style="color:#f92672">&#34;writer&#34;</span>: {
+                <span style="color:#f92672">&#34;output&#34;</span>: <span style="color:#e6db74">&#34;file&#34;</span>,
+                <span style="color:#f92672">&#34;filename&#34;</span>: <span style="color:#e6db74">&#34;/var/log/caddy/sink.log&#34;</span>
+            }
+        },
+        <span style="color:#f92672">&#34;logs&#34;</span>: {
+            <span style="color:#f92672">&#34;default&#34;</span>: {
+                <span style="color:#f92672">&#34;writer&#34;</span>: {
+                    <span style="color:#f92672">&#34;output&#34;</span>: <span style="color:#e6db74">&#34;file&#34;</span>,
+                    <span style="color:#f92672">&#34;filename&#34;</span>: <span style="color:#e6db74">&#34;/var/log/caddy/caddy.log&#34;</span>
+                },
+                <span style="color:#f92672">&#34;encoder&#34;</span>: {
+                    <span style="color:#f92672">&#34;format&#34;</span>:<span style="color:#e6db74">&#34;console&#34;</span>
+                },
+                <span style="color:#f92672">&#34;level&#34;</span>: <span style="color:#e6db74">&#34;info&#34;</span>,
+                <span style="color:#f92672">&#34;include&#34;</span>: [],
+                <span style="color:#f92672">&#34;exclude&#34;</span>: []
+            }
+        }
+    },
+    <span style="color:#f92672">&#34;apps&#34;</span>: {
+        <span style="color:#f92672">&#34;http&#34;</span>: {
+            <span style="color:#f92672">&#34;servers&#34;</span>: {
+                <span style="color:#f92672">&#34;myserver&#34;</span>: {
+                    <span style="color:#f92672">&#34;listen&#34;</span>: [
+                        <span style="color:#e6db74">&#34;:443&#34;</span>
+                    ],
+                    <span style="color:#f92672">&#34;routes&#34;</span>: [
+                         {
+                            <span style="color:#f92672">&#34;match&#34;</span>: [
+                                {
+                                    <span style="color:#f92672">&#34;host&#34;</span>: [
+                                        <span style="color:#e6db74">&#34;bitwarden.sethammons.com&#34;</span>
+                                    ]
+                                }
+                            ],
+                            <span style="color:#f92672">&#34;handle&#34;</span>: [
+                                {
+                                    <span style="color:#f92672">&#34;handler&#34;</span>: <span style="color:#e6db74">&#34;reverse_proxy&#34;</span>,
+                                    <span style="color:#f92672">&#34;transport&#34;</span>: {
+                                      <span style="color:#f92672">&#34;protocol&#34;</span>: <span style="color:#e6db74">&#34;http&#34;</span>,
+                                      <span style="color:#f92672">&#34;tls&#34;</span>: {}
+                                    },
+                                    <span style="color:#f92672">&#34;upstreams&#34;</span>: [
+                                        {
+                                            <span style="color:#f92672">&#34;dial&#34;</span>: <span style="color:#e6db74">&#34;bitwarden.sethammons.com:5443&#34;</span>,
+                                            <span style="color:#f92672">&#34;max_requests&#34;</span>: <span style="color:#ae81ff">1000</span>
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+
+                        {
+                            <span style="color:#f92672">&#34;match&#34;</span>: [
+                                {
+                                    <span style="color:#f92672">&#34;host&#34;</span>: [
+                                        <span style="color:#e6db74">&#34;sethammons.com&#34;</span>
+                                    ]
+                                }
+                            ],
+                            <span style="color:#f92672">&#34;handle&#34;</span>: [
+                                {
+                                    <span style="color:#f92672">&#34;handler&#34;</span>: <span style="color:#e6db74">&#34;file_server&#34;</span>,
+                                    <span style="color:#f92672">&#34;root&#34;</span>: <span style="color:#e6db74">&#34;/home/seth/projects/me/site/public&#34;</span>
+                                }
+                            ]
+                        },
+                        {
+                            <span style="color:#f92672">&#34;match&#34;</span>: [
+                                {
+                                    <span style="color:#f92672">&#34;host&#34;</span>: [
+                                        <span style="color:#e6db74">&#34;grzlybr.com&#34;</span>
+                                    ]
+                                }
+                            ],
+                            <span style="color:#f92672">&#34;handle&#34;</span>: [
+                                {
+                                    <span style="color:#f92672">&#34;handler&#34;</span>: <span style="color:#e6db74">&#34;reverse_proxy&#34;</span>,
+                                    <span style="color:#f92672">&#34;upstreams&#34;</span>: [
+                                        {
+                                            <span style="color:#f92672">&#34;dial&#34;</span>: <span style="color:#e6db74">&#34;localhost:1414&#34;</span>,
+                                            <span style="color:#f92672">&#34;max_requests&#34;</span>: <span style="color:#ae81ff">1000</span>
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        }
+    }
+}
+</code></pre></div><p>Whew. There is a bit going on there. The relevant section for Bitwarden is the handler:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
+    <span style="color:#f92672">&#34;handler&#34;</span>: <span style="color:#e6db74">&#34;reverse_proxy&#34;</span>,
+    <span style="color:#f92672">&#34;transport&#34;</span>: {
+      <span style="color:#f92672">&#34;protocol&#34;</span>: <span style="color:#e6db74">&#34;http&#34;</span>,
+      <span style="color:#f92672">&#34;tls&#34;</span>: {}
+    },
+    <span style="color:#f92672">&#34;upstreams&#34;</span>: [
+        {
+            <span style="color:#f92672">&#34;dial&#34;</span>: <span style="color:#e6db74">&#34;bitwarden.sethammons.com:5443&#34;</span>,
+            <span style="color:#f92672">&#34;max_requests&#34;</span>: <span style="color:#ae81ff">1000</span>
+        }
+    ]
+}
+</code></pre></div><p>This shows us setting up a reverse proxy (ie, just forward the requests through Caddy to some other address). By specifying the transport, we are able to send the HTTPs requests stright through to let Bitwarden's secure address. To use this config, I run <code>caddy start --config caddy.conf</code>.</p>
+<h2 id="bitwarden">Bitwarden</h2>
+<p>This took a bit more back and forth to get going. I think there is a better way to do this, but for the time being, this works. We install Bitwarden as normal, but we update the SSL port from the default <code>:443</code> to, in this case, <code>:5443</code>. Let Bitwarden set up its Let's Encrypt Certificate like normal. Note, Bitwarden tries to validate everything will work and will try to bind to <code>:443</code> during the install. This means that Caddy will have to be temporarily stopped so Bitwarden can do its thing.</p>
+<p>After Bitwarden is installed, we can alter some of its configs. Start by updating <code>bwdata/env/global.override.env</code>. You will need to update all the URL paths to include your custom SSL port. There are multiple entries to update, but the basic gist is to add the port like so:</p>
+<pre><code>globalSettings__baseServiceUri__api=https://bitwarden.sethammons.com:5443/api
+</code></pre><p>You will also need to tell Bitwarden that you have a custom SSL port. Edit  <code>/bwdata/config.yml</code> to have <code>https_port: 5443</code>.</p>
+<p>Run <code>./bitwarden.sh rebuild</code> and <code>./bitwarden.sh restart</code>. Since Caddy was turned off, you can start it back up. I do so by pointing at my on disk config: <code>caddy start --config caddy.conf</code>.</p>
+<h1 id="validating-your-installation">Validating your Installation</h1>
+<p>Go to your Bitwarden url you set up and bask in the glory of your self hosted Bitwarden instance. Create a new user and go to town setting up passwords and the like.</p>
+<h1 id="post-install---prevent-bitwarden-sign-ups">Post Install - Prevent Bitwarden Sign Ups</h1>
+<p>Now that everything is working, I did not want to allow additional signups and needed to disable that. Simply update <code>bwdata/env/global.override.env</code>:</p>
+<pre><code>globalSettings__disableUserRegistration=true
+</code></pre><p>And run <code>./bitwarden.sh updateconf</code>. You may need to restart the service with <code>./bitwarden.sh restart</code>.</p>
+<h2 id="todo">Todo</h2>
+<p>I'm pretty sure that this current set up is going to require me to stop the Caddy server every few months and update the Let's Encrypt Certificate that Bitwarden is using. That sucks. I need to dig in and likely point Bitwarden at the certificate used by Caddy. It would be great if Bitwarden provided a &ldquo;I'm behind an SSL equiped load balancer, I don't need SSL&rdquo; option, but that does not exist to my knowledge.</p>
+
+
+</article>
+
+
+<section class="post-nav">
+    <ul>
+        
+        <li>
+            <a href="https://sethammons.com/posts/pester/"><i class="fa fa-chevron-circle-left"></i> Pester: Go (Golang) HTTP retries, backoff, and concurrency</a>
+        </li>
+        
+        
+    </ul>
+</section>
+    
+
+
+
+
+
+</main>
+    <footer>
+        <h6>Copyright (c) 2001 - 2020, Seth Ammons; all rights reserved. |
+            Rendered by <a href="https://gohugo.io" title="Hugo">Hugo</a> 
+        </h6>
+    </footer>
+</div>
+<script src="/js/scripts.js"></script>
+
+</body>
+
+</html>
+

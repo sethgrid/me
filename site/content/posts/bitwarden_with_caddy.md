@@ -1,9 +1,8 @@
-+++
-date = "2019-12-23T18:02:55-07:00"
-draft = false
-title = "Bitwarden with Caddy 2 on Digital Ocean"
-
-+++
+---
+date: 2019-12-22T18:02:55-07:00
+draft: false
+title: "Bitwarden with Caddy 2 on Digital Ocean"
+---
 
 ### The Preamble Ramble
 

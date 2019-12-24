@@ -12,6 +12,148 @@
    
    
      <item>
+       <title>Bitwarden with Caddy 2 on Digital Ocean</title>
+       <link>https://sethammons.com/posts/bitwarden_with_caddy/</link>
+       <pubDate>Sun, 22 Dec 2019 18:02:55 -0700</pubDate>
+       
+       <guid>https://sethammons.com/posts/bitwarden_with_caddy/</guid>
+       <description>&lt;h3 id=&#34;the-preamble-ramble&#34;&gt;The Preamble Ramble&lt;/h3&gt;
+&lt;p&gt;I finally had to bite the bullet and go away from the antiquated way I was leveraging password management. I was maintaining a keepass database synced via Dropbox. This let me keep my phone, my work laptop, my desktop, and my wife&#39;s computer all in sync. However, when my wife re-installed her OS last week, Dropbox informed me that my license is only good for three computers. Well, time to finally make the move to Bitwarden.&lt;/p&gt;
+&lt;p&gt;I&#39;ve heard good things about Bitwarden and I especially like the idea of self-hosting my password management solution. Having easy browser integration and mobile clients made looking into getting it running on my Digital Ocean box a no-brainer.&lt;/p&gt;
+&lt;p&gt;Unfortunately, as I was getting ready to sign into my Digital Ocean box, I realized something was wrong. I couldn&#39;t ssh, I couldn&#39;t open a web console. Nothing. Digital Oceans support is lack luster for emergencies like &amp;ldquo;I can&#39;t reach my node and it is DO&#39;s fault.&amp;rdquo; Their self-service mentality assumes everything that can go wrong is the user&#39;s fault. Fast forward a bit, and I had to re-create my instance and start from scratch. Since I was starting from scratch, I decided I would give Caddy server a try too. And since Caddy 2 is in beta, I might as well use that!&lt;/p&gt;
+&lt;h2 id=&#34;caddy-configuration&#34;&gt;Caddy Configuration&lt;/h2&gt;
+&lt;p&gt;Caddy 2 is functional, but still very beta. Docs are getting written and, for someone who is not familiar with it, there is a bit of a learning curve. While there is apparently some magic simple config format, the &amp;ldquo;real&amp;rdquo; config format is JSON, and if you want to have full control of your Caddy 2 instance, you are going to be writing some JSON.&lt;/p&gt;
+&lt;p&gt;Previously, I thought YAML was a pain in the butt. Man. Hand crafting JSON is terrible. That said, here is a Caddy configuration that allowed me to have logging, to run my normal site as a static file server, also run my son&#39;s site as a reverse proxy to a Go binary running on my server, and a reverse proxy to my Bitwarden install:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-json&#34; data-lang=&#34;json&#34;&gt;{
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;logging&amp;#34;&lt;/span&gt;: {
+        &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;sink&amp;#34;&lt;/span&gt;: {
+            &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;writer&amp;#34;&lt;/span&gt;: {
+                &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;output&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;file&amp;#34;&lt;/span&gt;,
+                &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;filename&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;/var/log/caddy/sink.log&amp;#34;&lt;/span&gt;
+            }
+        },
+        &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;logs&amp;#34;&lt;/span&gt;: {
+            &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;default&amp;#34;&lt;/span&gt;: {
+                &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;writer&amp;#34;&lt;/span&gt;: {
+                    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;output&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;file&amp;#34;&lt;/span&gt;,
+                    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;filename&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;/var/log/caddy/caddy.log&amp;#34;&lt;/span&gt;
+                },
+                &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;encoder&amp;#34;&lt;/span&gt;: {
+                    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;format&amp;#34;&lt;/span&gt;:&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;console&amp;#34;&lt;/span&gt;
+                },
+                &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;level&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;info&amp;#34;&lt;/span&gt;,
+                &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;include&amp;#34;&lt;/span&gt;: [],
+                &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;exclude&amp;#34;&lt;/span&gt;: []
+            }
+        }
+    },
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;apps&amp;#34;&lt;/span&gt;: {
+        &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;http&amp;#34;&lt;/span&gt;: {
+            &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;servers&amp;#34;&lt;/span&gt;: {
+                &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;myserver&amp;#34;&lt;/span&gt;: {
+                    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;listen&amp;#34;&lt;/span&gt;: [
+                        &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;:443&amp;#34;&lt;/span&gt;
+                    ],
+                    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;routes&amp;#34;&lt;/span&gt;: [
+                         {
+                            &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;match&amp;#34;&lt;/span&gt;: [
+                                {
+                                    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;host&amp;#34;&lt;/span&gt;: [
+                                        &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;bitwarden.sethammons.com&amp;#34;&lt;/span&gt;
+                                    ]
+                                }
+                            ],
+                            &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;handle&amp;#34;&lt;/span&gt;: [
+                                {
+                                    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;handler&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;reverse_proxy&amp;#34;&lt;/span&gt;,
+                                    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;transport&amp;#34;&lt;/span&gt;: {
+                                      &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;protocol&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;http&amp;#34;&lt;/span&gt;,
+                                      &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;tls&amp;#34;&lt;/span&gt;: {}
+                                    },
+                                    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;upstreams&amp;#34;&lt;/span&gt;: [
+                                        {
+                                            &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;dial&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;bitwarden.sethammons.com:5443&amp;#34;&lt;/span&gt;,
+                                            &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;max_requests&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;1000&lt;/span&gt;
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+
+                        {
+                            &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;match&amp;#34;&lt;/span&gt;: [
+                                {
+                                    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;host&amp;#34;&lt;/span&gt;: [
+                                        &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;sethammons.com&amp;#34;&lt;/span&gt;
+                                    ]
+                                }
+                            ],
+                            &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;handle&amp;#34;&lt;/span&gt;: [
+                                {
+                                    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;handler&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;file_server&amp;#34;&lt;/span&gt;,
+                                    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;root&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;/home/seth/projects/me/site/public&amp;#34;&lt;/span&gt;
+                                }
+                            ]
+                        },
+                        {
+                            &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;match&amp;#34;&lt;/span&gt;: [
+                                {
+                                    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;host&amp;#34;&lt;/span&gt;: [
+                                        &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;grzlybr.com&amp;#34;&lt;/span&gt;
+                                    ]
+                                }
+                            ],
+                            &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;handle&amp;#34;&lt;/span&gt;: [
+                                {
+                                    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;handler&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;reverse_proxy&amp;#34;&lt;/span&gt;,
+                                    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;upstreams&amp;#34;&lt;/span&gt;: [
+                                        {
+                                            &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;dial&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;localhost:1414&amp;#34;&lt;/span&gt;,
+                                            &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;max_requests&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;1000&lt;/span&gt;
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        }
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Whew. There is a bit going on there. The relevant section for Bitwarden is the handler:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-json&#34; data-lang=&#34;json&#34;&gt;{
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;handler&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;reverse_proxy&amp;#34;&lt;/span&gt;,
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;transport&amp;#34;&lt;/span&gt;: {
+      &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;protocol&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;http&amp;#34;&lt;/span&gt;,
+      &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;tls&amp;#34;&lt;/span&gt;: {}
+    },
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;upstreams&amp;#34;&lt;/span&gt;: [
+        {
+            &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;dial&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;bitwarden.sethammons.com:5443&amp;#34;&lt;/span&gt;,
+            &lt;span style=&#34;color:#f92672&#34;&gt;&amp;#34;max_requests&amp;#34;&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;1000&lt;/span&gt;
+        }
+    ]
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;This shows us setting up a reverse proxy (ie, just forward the requests through Caddy to some other address). By specifying the transport, we are able to send the HTTPs requests stright through to let Bitwarden&#39;s secure address. To use this config, I run &lt;code&gt;caddy start --config caddy.conf&lt;/code&gt;.&lt;/p&gt;
+&lt;h2 id=&#34;bitwarden&#34;&gt;Bitwarden&lt;/h2&gt;
+&lt;p&gt;This took a bit more back and forth to get going. I think there is a better way to do this, but for the time being, this works. We install Bitwarden as normal, but we update the SSL port from the default &lt;code&gt;:443&lt;/code&gt; to, in this case, &lt;code&gt;:5443&lt;/code&gt;. Let Bitwarden set up its Let&#39;s Encrypt Certificate like normal. Note, Bitwarden tries to validate everything will work and will try to bind to &lt;code&gt;:443&lt;/code&gt; during the install. This means that Caddy will have to be temporarily stopped so Bitwarden can do its thing.&lt;/p&gt;
+&lt;p&gt;After Bitwarden is installed, we can alter some of its configs. Start by updating &lt;code&gt;bwdata/env/global.override.env&lt;/code&gt;. You will need to update all the URL paths to include your custom SSL port. There are multiple entries to update, but the basic gist is to add the port like so:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;globalSettings__baseServiceUri__api=https://bitwarden.sethammons.com:5443/api
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;You will also need to tell Bitwarden that you have a custom SSL port. Edit  &lt;code&gt;/bwdata/config.yml&lt;/code&gt; to have &lt;code&gt;https_port: 5443&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;Run &lt;code&gt;./bitwarden.sh rebuild&lt;/code&gt; and &lt;code&gt;./bitwarden.sh restart&lt;/code&gt;. Since Caddy was turned off, you can start it back up. I do so by pointing at my on disk config: &lt;code&gt;caddy start --config caddy.conf&lt;/code&gt;.&lt;/p&gt;
+&lt;h1 id=&#34;validating-your-installation&#34;&gt;Validating your Installation&lt;/h1&gt;
+&lt;p&gt;Go to your Bitwarden url you set up and bask in the glory of your self hosted Bitwarden instance. Create a new user and go to town setting up passwords and the like.&lt;/p&gt;
+&lt;h1 id=&#34;post-install---prevent-bitwarden-sign-ups&#34;&gt;Post Install - Prevent Bitwarden Sign Ups&lt;/h1&gt;
+&lt;p&gt;Now that everything is working, I did not want to allow additional signups and needed to disable that. Simply update &lt;code&gt;bwdata/env/global.override.env&lt;/code&gt;:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;globalSettings__disableUserRegistration=true
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;And run &lt;code&gt;./bitwarden.sh updateconf&lt;/code&gt;. You may need to restart the service with &lt;code&gt;./bitwarden.sh restart&lt;/code&gt;.&lt;/p&gt;
+&lt;h2 id=&#34;todo&#34;&gt;Todo&lt;/h2&gt;
+&lt;p&gt;I&#39;m pretty sure that this current set up is going to require me to stop the Caddy server every few months and update the Let&#39;s Encrypt Certificate that Bitwarden is using. That sucks. I need to dig in and likely point Bitwarden at the certificate used by Caddy. It would be great if Bitwarden provided a &amp;ldquo;I&#39;m behind an SSL equiped load balancer, I don&#39;t need SSL&amp;rdquo; option, but that does not exist to my knowledge.&lt;/p&gt;
+</description>
+     </item>
+   
+     <item>
        <title>Pester: Go (Golang) HTTP retries, backoff, and concurrency</title>
        <link>https://sethammons.com/posts/pester/</link>
        <pubDate>Mon, 25 May 2015 10:10:55 -0700</pubDate>
